@@ -1,4 +1,5 @@
 package id.melawai.pegawai;
+import android.widget.Toast;
 import android.app.*;import android.os.*;import android.content.*;import android.content.pm.PackageManager;import android.net.Uri;import android.webkit.*;import androidx.webkit.*;import org.json.*;import java.util.*;
 public class MainActivity extends Activity {
  WebView web;boolean pendingTracking=false;ValueCallback<Uri[]> files;PermissionRequest camera;

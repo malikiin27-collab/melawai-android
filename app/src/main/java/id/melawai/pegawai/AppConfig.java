@@ -1,6 +1,6 @@
 package id.melawai.pegawai;
 final class AppConfig {
- static final String ORIGIN="https://datawebs.my.id";
- static final String BASE=ORIGIN+"/melawai";
- static boolean trusted(android.net.Uri u){return "https".equals(u.getScheme()) && "datawebs.my.id".equals(u.getHost()) && (u.getPort()==-1 || u.getPort()==443) && ("/melawai".equals(u.getPath()) || (u.getPath()!=null && u.getPath().startsWith("/melawai/")));}
+ static final String ORIGIN="https://melawai.datawebs.my.id";
+ static final String BASE=ORIGIN;
+ static boolean trusted(android.net.Uri u){return "https".equals(u.getScheme()) && "melawai.datawebs.my.id".equals(u.getHost()) && (u.getPort()==-1 || u.getPort()==443) && (u.getPath()!=null && u.getPath().startsWith("/"));}
 }

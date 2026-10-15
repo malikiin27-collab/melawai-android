@@ -1,12 +1,48 @@
-# Melawai Android V10 – Proyek GitHub Actions
+# Kelurahan Melawai — Android V15
 
-Nama aplikasi: **Melawai**. Domain produksi: `https://melawai.datawebs.my.id`.
+**Paket ini adalah kode sumber aplikasi Android untuk GitHub Actions, BUKAN APK yang sudah selesai dibangun.**
 
-## Build APK (GitHub)
-1. Buat repositori GitHub privat (direkomendasikan) dan unggah **isi** ZIP Android ini ke root repo (jangan unggah ZIP master cPanel).
-2. Buka **Actions** → **APK Uji Melawai** → **Run workflow**, atau push ke branch `main`.
-3. Setelah workflow sukses, unduh artefak `Melawai-APK-Uji-V10` dan ekstrak `app-debug.apk`.
-4. Uji login admin, PJLP, PPPK, Kamera/Galeri, check-in/out, GPS di latar, dan unduhan.
-5. **Untuk distribusi produksi**, APK harus ditandatangani dengan keystore rilis yang sama seperti aplikasi sebelumnya. Debug APK bukan versi produksi dan kemungkinan tidak bisa menimpa paket yang ditandatangani dengan kunci berbeda. Untuk update website, ganti `downloads/kelurahan-melawai.apk` dengan APK rilis yang sudah diuji.
+- Nama aplikasi: **Melawai**
+- Package/application ID tetap: `id.melawai.pegawai`
+- Domain HTTPS: `https://melawai.datawebs.my.id`
+- `versionCode 15` / `versionName 15.0.0`
+- Minimum Android 8 (API 26)
 
-Lokasi Android dapat diperlambat oleh penghemat baterai dan kebijakan perangkat. Notifikasi dan izin lokasi tidak dapat memaksa perangkat memantau ketika OS menghentikan layanan. iPhone menggunakan PWA Safari, **bukan** APK Android.
+## Yang diperbarui dari Android V10
+
+1. Membaca langsung website Melawai aktif, sehingga tombol admin **Hapus Permanen PPPK** dari patch website V14 akan muncul di aplikasi ketika server telah diperbarui dan akun admin berhasil login.
+2. PDF PPPK di aplikasi Android diambil langsung melalui koneksi HTTPS dengan cookie login WebView, dicek header PDF, kemudian disimpan / dibuka menggunakan aplikasi pembaca PDF. Hal ini menghindari keterbatasan unduhan `blob:` WebView untuk tautan PPPK yang dikenal.
+3. Progress unduhan PDF tampil dari byte yang benar-benar diterima saat `Content-Length` diketahui; tanpa `Content-Length` ditampilkan proses menunggu/ukuran diterima, bukan persen rekaan.
+4. Pilihan **Kamera** dan **Galeri** pada PPPK tetap mengikuti formulir web. Upload foto PJLP yang disyaratkan kamera tetap mengikuti atribut `capture` website.
+5. Mempertahankan tracking GPS dengan layanan foreground, antrean GPS offline, penyaringan titik tidak akurat/lompatan, dan interval target 5 detik. Layanan dapat dijalankan ulang Android jika memungkinkan, tetapi **tidak dapat dijamin aktif sesudah pengguna melakukan Force Stop, saat kebijakan produsen mematikannya, atau ketika izin lokasi dicabut**.
+6. Cache browser lama dibersihkan sekali pada update ke V15 tanpa menghapus cookie login dan data akun.
+
+## Cara build APK lewat GitHub (tidak perlu Android Studio)
+
+1. Di komputer, ekstrak ZIP ini. Upload **semua isi folder hasil ekstrak**, termasuk `.github/`, ke root repo GitHub Melawai Anda (pertahankan package ID dan domain).
+2. GitHub → **Actions** → **APK Melawai V15** → **Run workflow**, tunggu status hijau.
+3. Unduh artefak **Melawai-APK-Uji-V15**. Ekstrak; file `app-debug.apk` di dalamnya untuk pengujian.
+4. Uji login admin, akun PJLP/PPPK, kamera, galeri, upload, tracking saat layar mati, Lihat/Unduh PDF, dan Hapus Permanen pada *data uji*.
+5. Untuk mengunggah ke website Melawai, gunakan APK rilis yang **sudah ditandatangani keystore asli** dan sudah diuji. Letakkan di `downloads/kelurahan-melawai.apk` pada cPanel; file master website, database, dan SQL tidak perlu diimpor ulang.
+
+## Build rilis yang dapat memperbarui aplikasi terpasang
+
+Untuk pembaruan di perangkat tanpa uninstall, rilis baru **harus** memakai package ID dan **kunci tanda tangan yang sama** dengan APK sebelumnya. Build debug dari runner GitHub yang berbeda belum tentu mempunyai kunci yang sama, sehingga mungkin tidak dapat menimpa aplikasi lama.
+
+Simpan keystore rilis asli dalam GitHub Repository Secrets (JANGAN unggah ke repo/chat) dan siapkan:
+
+- `MELAWAI_KEYSTORE_BASE64` — seluruh isi keystore dalam Base64
+- `MELAWAI_STORE_PASSWORD`
+- `MELAWAI_KEY_ALIAS`
+- `MELAWAI_KEY_PASSWORD`
+
+Jalankan workflow **APK Melawai V15 (Release signed)**, unduh `Melawai-APK-Release-V15` dan lakukan uji sebelum distribusi.
+
+> Bila keystore rilis lama hilang, Android tidak mengizinkan update langsung dengan kunci berbeda. Backup data yang diperlukan dan instal ulang mungkin diperlukan. Jangan uninstall sebelum dipastikan data di server tersimpan.
+
+## Penting terkait kode website
+
+- Tombol **Hapus Permanen** dan fitur laporan PDF berasal dari website: paket Android ini **tidak memasang patch cPanel V13/V14** dan tidak mengubah database.
+- Jika file foto benar-benar hilang di `storage/pegawai`, Android tidak bisa mengembalikannya. Pulihkan dari backup cPanel.
+- Untuk iPhone, proyek ini bukan aplikasi iOS; iOS memerlukan PWA atau proyek iOS terpisah.
+- Android SDK dan Gradle tidak tersedia di lingkungan penyiapan paket, jadi **APK belum dikompilasi dan belum diuji di perangkat**.
